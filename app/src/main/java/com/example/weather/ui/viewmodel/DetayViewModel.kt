@@ -2,6 +2,7 @@ package com.example.weather.ui.viewmodel
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.example.weather.data.model.Konum
 import com.example.weather.data.model.Root
 import com.example.weather.data.repo.WeatherRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -16,12 +17,13 @@ class DetayViewModel @Inject constructor(var wrepo : WeatherRepository): ViewMod
     var gunListesi = MutableLiveData<List<Root>>()
 
     init {
-        detayRecyclerview()
+        //detayRecyclerview()
     }
 
-    fun detayRecyclerview() {
+    fun detayRecyclerview(data:Konum) {
         CoroutineScope(Dispatchers.Main).launch {
-            gunListesi.value = wrepo.anasayfaRecyclerview()
+            gunListesi.value = wrepo.anasayfaRecyclerview(data)
         }
     }
+
 }

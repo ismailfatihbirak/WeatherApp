@@ -1,7 +1,10 @@
 package com.example.weather.ui.viewmodel
 
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.weather.data.model.Konum
 import com.example.weather.data.model.Root
 import com.example.weather.data.modelanlik.CurrentWeatherr
 
@@ -20,20 +23,24 @@ class AnasayfaViewModel @Inject constructor(var wrepo : WeatherRepository) : Vie
     var anlıkListesi = MutableLiveData<CurrentWeatherr>()
 
     init {
-        anasayfaRecyclerview()
-        anasayfaCurrent()
+        //anasayfaRecyclerview()
+        //anasayfaCurrent()
+        //setMyData(aa)
     }
 
-    fun anasayfaRecyclerview() {
+    fun anasayfaRecyclerview(data: Konum) {
         CoroutineScope(Dispatchers.Main).launch {
-            saatListesi.value = wrepo.anasayfaRecyclerview()
-            anlıkListesi.value = wrepo.anasayfaCurrent()
+            saatListesi.value = wrepo.anasayfaRecyclerview(data)
+            anlıkListesi.value = wrepo.anasayfaCurrent(data)
+
         }
     }
-    fun anasayfaCurrent() {
+    fun anasayfaCurrent(data: Konum) {
         CoroutineScope(Dispatchers.Main).launch {
-            anlıkListesi.value = wrepo.anasayfaCurrent()
+            anlıkListesi.value = wrepo.anasayfaCurrent(data)
         }
     }
+
+
 
 }

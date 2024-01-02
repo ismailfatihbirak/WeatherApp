@@ -16,8 +16,10 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.viewModels
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.weather.MainActivity
 
 import com.example.weather.R
+import com.example.weather.data.model.Konum
 
 import com.example.weather.databinding.FragmentAnasayfaBinding
 import com.example.weather.ui.adapter.SaatlikAdapter
@@ -26,6 +28,9 @@ import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.tasks.Task
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -34,12 +39,13 @@ import java.util.Locale
 class AnasayfaFragment : Fragment() {
     private lateinit var binding: FragmentAnasayfaBinding
     private lateinit var viewModel: AnasayfaViewModel
+    private var izinKontrol = 0
+    private lateinit var flpc: FusedLocationProviderClient
+    private lateinit var locationTask: Task<Location>
+    var konum = Konum(40.616667,43.1)
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         binding = FragmentAnasayfaBinding.inflate(inflater, container, false)
-
-
-
 
         binding.nextBtn.setOnClickListener{
             Navigation.findNavController(it).navigate(R.id.gecis)
@@ -102,8 +108,51 @@ class AnasayfaFragment : Fragment() {
         val tempViewModel: AnasayfaViewModel by viewModels()
         viewModel = tempViewModel
 
+        flpc = LocationServices.getFusedLocationProviderClient(requireActivity())
+
+
+        izinKontrol = ContextCompat.checkSelfPermission(requireContext(), android.Manifest.permission.ACCESS_FINE_LOCATION)
+
+        if (izinKontrol != PackageManager.PERMISSION_GRANTED){//izin onaylanmamışsa
+            ActivityCompat.requestPermissions(requireActivity(),
+                arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION),100)
+        }else{//İzin onaylanmışsa
+            locationTask = flpc.lastLocation
+            konumBilgisiAl()
+        }
+
+
+
     }
 
+    fun konumBilgisiAl(){
+        locationTask.addOnSuccessListener { location ->
+            if (location != null) {
+                konum.lat = location.latitude
+                konum.lon = location.longitude
+                viewModel.anasayfaRecyclerview(konum)
+                viewModel.anasayfaCurrent(konum)
+            } else {
+                Log.e("hata","enlem alınamadı")
+            }
+        }
+    }
+
+    @SuppressLint("MissingSuperCall")
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        if (requestCode == 100){
+
+            izinKontrol = ContextCompat.checkSelfPermission(requireContext(),android.Manifest.permission.ACCESS_FINE_LOCATION)
+
+            if(grantResults.size > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                Toast.makeText(requireContext(),"İzin kabul edildi", Toast.LENGTH_SHORT).show()
+                locationTask = flpc.lastLocation
+                konumBilgisiAl()
+            }else{
+                Toast.makeText(requireContext(),"İzin reddedildi", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
 
 
 }
