@@ -23,7 +23,7 @@ To run the Weather App locally, follow these steps:
 2. Open the project in Android Studio.
 3. Build and run the app on an emulator or physical device.
 
-## Dependencies 🛠️
+## Libraries 🛠️
 
 - [Kotlin](https://github.com/JetBrains/kotlin)
 - [Hilt](https://developer.android.com/training/dependency-injection/hilt-android)
